@@ -1,4 +1,4 @@
-s# search.py
+# search.py
 # ---------
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
@@ -119,8 +119,6 @@ def depthFirstSearch(problem):
     # util.raiseNotDefined()
 
 
-
-
 def getDirection(str):
     from game import Directions
 
@@ -133,17 +131,20 @@ def getDirection(str):
     elif str == "West":
         return Directions.WEST
 
-def recursive_DFS(v,problem,marked, path):
+
+def recursive_DFS(v, problem, marked, path):
     if v not in marked:
-        path.append(getDirection(v[1]))
         marked.add(v)
         if problem.isGoalState(v):
             return path
         else:
             for child in problem.getSuccessors(v):
-                newpath = recursive_DFS(child,problem,marked,path)
-                if len(newpath) != 0:
+                path.append(child[1])
+                newpath = recursive_DFS(child[0], problem, marked, path)
+                if newpath:
                     return newpath
+                else:
+                    path.pop()
             return []
 
 
