@@ -155,7 +155,34 @@ def recursive_DFS(v, problem, marked, path):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    marked = set([])
+    parents = {}
+    PQ = util.Queue
+    PQ.push(problem.getStartState())
+    while !PQ.isEmpty():
+        current = PQ.pop()
+        if current not in marked:
+            marked.add(current)
+            if problem.isGoalState(current):
+                return traceGoal(parents,current)
+            for child in getSuccessors(current):
+                parents[child[0]] = (current,child[1])
+                PQ.push(child[0])
+
+
+
     util.raiseNotDefined()
+
+def traceGoal(parents,goal):
+    path = []
+    while true:
+        if parents.get(goal) is not None:
+            path.insert(0,getDirection(parents.get(goal)[1]))
+            goal = parents.get(goal)[0]
+        else:
+            return path
+
+
 
 
 def uniformCostSearch(problem):
@@ -183,3 +210,4 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
