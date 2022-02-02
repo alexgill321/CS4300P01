@@ -1,4 +1,4 @@
-# search.py
+s# search.py
 # ---------
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
@@ -75,6 +75,9 @@ def tinyMazeSearch(problem):
 
 
 def depthFirstSearch(problem):
+    marked = set([])
+    path = []
+    return recursive_DFS(problem.getStartState(),problem, marked, path)
     """
     Search the deepest nodes in the search tree first.
 
@@ -88,33 +91,34 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    stack = util.Stack()
-    marked = set([])
-    path = []
+    # stack = util.Stack()
+    # marked = set([])
 
-    # stack.push(start)
-    stack.push(problem.getStartState())
-    # while stack is not empty
-    while not stack.isEmpty():
-        v = stack.pop()
-        path.append(getDirection(v[1]))
+    # # stack.push(start)
+    # stack.push(problem.getStartState())
+    # # while stack is not empty
+    # while not stack.isEmpty():
+    #     v = stack.pop()
+    #     path.append(getDirection(v[1]))
 
-        if v not in marked:
-            marked.add(v)
+    #     if v not in marked:
+    #         marked.add(v)
 
-        if problem.isGoalState(v):
-            return path
+    #     if problem.isGoalState(v):
+    #         return path
 
-        for child in problem.getSuccessors(v):
-            stack.push(child[0])
+    #     for child in problem.getSuccessors(v):
+    #         stack.push(child[0])
 
-        path.pop()
+    #     path.pop()
 
-    # print("Start:", problem.getStartState())
-    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    # # print("Start:", problem.getStartState())
+    # # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
-    util.raiseNotDefined()
+    # util.raiseNotDefined()
+
+
 
 
 def getDirection(str):
@@ -129,8 +133,23 @@ def getDirection(str):
     elif str == "West":
         return Directions.WEST
 
-def recursive_DFS():
-    pass
+def recursive_DFS(v,problem,marked, path):
+    if v not in marked:
+        path.append(getDirection(v[1]))
+        marked.add(v)
+        if problem.isGoalState(v):
+            return path
+        else:
+            for child in problem.getSuccessors(v):
+                newpath = recursive_DFS(child,problem,marked,path)
+                if len(newpath) != 0:
+                    return newpath
+            return []
+
+
+
+
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
