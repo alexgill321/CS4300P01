@@ -148,47 +148,49 @@ def recursive_DFS(v, problem, marked, path):
             return []
 
 
-
-
-
-
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
     marked = set([])
     parents = {}
-    PQ = util.Queue
+    PQ = util.Queue()
     PQ.push(problem.getStartState())
-    while !PQ.isEmpty():
+    while not PQ.isEmpty():
         current = PQ.pop()
         if current not in marked:
             marked.add(current)
             if problem.isGoalState(current):
-                return traceGoal(parents,current)
-            for child in getSuccessors(current):
-                parents[child[0]] = (current,child[1])
-                PQ.push(child[0])
+                return traceGoal(parents, current)
+            for child in problem.getSuccessors(current):
+                if child[0] not in marked:
+                    parents[child[0]] = (current, child[1])
+                    PQ.push(child[0])
 
 
-
-    util.raiseNotDefined()
-
-def traceGoal(parents,goal):
+def traceGoal(parents, goal):
     path = []
-    while true:
+    while True:
         if parents.get(goal) is not None:
-            path.insert(0,getDirection(parents.get(goal)[1]))
+            path.insert(0, getDirection(parents.get(goal)[1]))
             goal = parents.get(goal)[0]
         else:
+            print(path)
             return path
-
-
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    marked = set([])
+    PQ = util.PriorityQueue()
+    while not PQ.isEmpty():
+        current = PQ.pop()
+        if current not in marked:
+            marked.add(current)
+            if problem.isGoalState(current):
+                return traceGoal(parents, current)
+            for child in problem.getSuccessors(current):
+                if child[0] not in marked:
+                    parents[child[0]] = (current, child[1])
+                    PQ.push(child[0])
 
 
 def nullHeuristic(state, problem=None):
