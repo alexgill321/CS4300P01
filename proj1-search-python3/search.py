@@ -181,6 +181,9 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     marked = set([])
     PQ = util.PriorityQueue()
+    for child in problem.getSuccessors(problem.getStartState()):
+        path = [child[1]]
+        PQ.push(path, problem.getCostOfActions(path))
     while not PQ.isEmpty():
         current = PQ.pop()
         if current not in marked:
