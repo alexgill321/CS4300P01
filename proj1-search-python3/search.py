@@ -181,19 +181,29 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     marked = set([])
     PQ = util.PriorityQueue()
+
+    marked.add(problem.getStartState())
     for child in problem.getSuccessors(problem.getStartState()):
         path = [child[1]]
-        PQ.push(path, problem.getCostOfActions(path))
+        PQ.push((child[0], path), problem.getCostOfActions(path))
+
     while not PQ.isEmpty():
         current = PQ.pop()
-        if current not in marked:
-            marked.add(current)
-            if problem.isGoalState(current):
-                return traceGoal(parents, current)
-            for child in problem.getSuccessors(current):
+        if current[0] not in marked:
+            marked.add(current[0])
+            if problem.isGoalState(current[0]):
+                return getPath(current[1])
+            for child in problem.getSuccessors(current[0]):
                 if child[0] not in marked:
-                    parents[child[0]] = (current, child[1])
-                    PQ.push(child[0])
+                    temp = current[1].copy()
+                    temp.append(child[1])
+                    PQ.push((child[0], temp), problem.getCostOfActions(temp))
+
+
+def getPath(path):
+    for i in range(len(path)):
+        path[i] = getDirection(path[i])
+    return path
 
 
 def nullHeuristic(state, problem=None):
