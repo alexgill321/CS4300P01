@@ -173,7 +173,6 @@ def traceGoal(parents, goal):
             path.insert(0, getDirection(parents.get(goal)[1]))
             goal = parents.get(goal)[0]
         else:
-            print(path)
             return path
 
 
@@ -234,6 +233,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 if child[0] not in marked:
                     temp = current[1].copy()
                     temp.append(child[1])
+
                     PQ.push((child[0], temp), problem.getCostOfActions(temp) + heuristic(child[0], problem))
 
 
