@@ -329,10 +329,10 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
-        x, y = state[0]
-        self.position = state[0]
-        visited_corners = state[1]
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x, y = state[0]
+            self.position = state[0]
+            visited_corners = state[1]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
 
@@ -498,6 +498,7 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0  # DO NOT CHANGE
         self.heuristicInfo = {}  # A dictionary for the heuristic to store information
+        self.position = self.start[0]
 
     def getStartState(self):
         return self.start
@@ -511,6 +512,7 @@ class FoodSearchProblem:
         self._expanded += 1  # DO NOT CHANGE
         for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x, y = state[0]
+            self.position = (x, y)
             dx, dy = Actions.directionToVector(direction)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
@@ -532,6 +534,12 @@ class FoodSearchProblem:
                 return 999999
             cost += 1
         return cost
+
+    def getWalls(self):
+        return self.walls
+
+    def getPacmanPosition(self):
+        return self.position
 
 
 class AStarFoodSearchAgent(SearchAgent):
@@ -571,8 +579,48 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+
+    # Find minimum Manhattan Distance food from position
+    minDist = 999999
+    minPoint = None
+    for food in foodGrid.asList():
+        manDist = abs(position[0] - food[0]) + abs(position[1] - food[1])
+        if manDist < minDist:
+            minDist = manDist
+            minPoint = food
+
+    # Find maze distance to minimum manhattan distance food
+    if minPoint is not None:
+        dist = mazeDistance(position, minPoint, problem)
+    else:
+        return 0  # End of path
+
+    # Retrace the path to find amount of food not on the path
+    path = search.bfs(PositionSearchProblem(problem, start=position, goal=minPoint, warn=False, visualize=False))
+    count = len(foodGrid.asList())  # Amount of food
+    x, y = position
+    if path is not None:
+        for dir in path:
+            x2, y2 = getPos(dir)
+            x += x2
+            y += y2
+            if foodGrid[x][y]:
+                count -= 1
+
+    cost = dist + count
+
+    return cost
+
+
+def getPos(dir):
+    if dir == Directions.WEST:
+        return -1, 0
+    elif dir == Directions.EAST:
+        return 1, 0
+    elif dir == Directions.NORTH:
+        return 0, 1
+    elif dir == Directions.SOUTH:
+        return 0, -1
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -604,8 +652,21 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        minDist = 999999
+        minPoint = None
+        path = None
+        for food in food.asList():
+            manDist = abs(startPosition[0] - food[0]) + abs(startPosition[1] - food[1])
+            if manDist < minDist:
+                minDist = manDist
+                minPoint = food
+
+        path = []
+        if minPoint is not None:
+            path = search.bfs(PositionSearchProblem(gameState, start=startPosition, goal=minPoint, warn=False, visualize=False))
+
+        return path
+
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -640,9 +701,14 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x, y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        self.position = state
+        return self.food[x][y]
+    #
+    # def getWalls(self):
+    #     return self.walls
+    #
+    # def getPacmanPosition(self):
+    #     return self.position
 
 
 def mazeDistance(point1, point2, gameState):
