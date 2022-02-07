@@ -400,7 +400,7 @@ class CornersProblem(search.SearchProblem):
                     marked.add((i, j))
                     marked.add((j, i))
         distances = sorted(distances)
-        #print(distances)
+        # print(distances)
         start = -1
         min_dist = 999999999
         for i in range(len(self.corners)):
@@ -443,9 +443,9 @@ def cornersHeuristic(state, problem):
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
     min_distance = 99999999
+    xy1 = state[0]
     for corner in corners:
         if problem.getCornerNum(corner) not in state[1]:
-            xy1 = state[0]
             xy2 = corner
             # print("xy1: ", xy1, " xy2: ", corner)
             new_dist = mazeDistance(xy1, xy2, problem)
@@ -484,6 +484,7 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0  # DO NOT CHANGE
         self.heuristicInfo = {}  # A dictionary for the heuristic to store information
+        self.position = self.start[0]
 
     def getStartState(self):
         return self.start
@@ -497,6 +498,7 @@ class FoodSearchProblem:
         self._expanded += 1  # DO NOT CHANGE
         for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x, y = state[0]
+            self.position = (x, y)
             dx, dy = Actions.directionToVector(direction)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
@@ -518,6 +520,12 @@ class FoodSearchProblem:
                 return 999999
             cost += 1
         return cost
+
+    def getWalls(self):
+        return self.walls
+
+    def getPacmanPosition(self):
+        return self.position
 
 
 class AStarFoodSearchAgent(SearchAgent):
@@ -557,8 +565,54 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+
+    x, y = position
+    i = 1
+
+    minDist = 999999
+    xy1 = position
+    minPoint = None
+    dist = 0
+    for food in foodGrid.asList():
+        xy2 = food
+        manDist = abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+        if manDist < minDist:
+            minDist = manDist
+            minPoint = xy2
+
+    if minPoint is not None:
+        dist = mazeDistance(position, minPoint, problem)
+
+    prob = PositionSearchProblem(problem, start=position, goal=minPoint, warn=False, visualize=False)
+    path = search.bfs(prob)
+    cost = 0
+    amountFood = len(foodGrid.asList())
+    count = amountFood
+    if path is not None:
+        for dir in path:
+            x2, y2 = getPos(dir)
+            x += x2
+            y += y2
+            if foodGrid[x][y]:
+                count -= 1
+
+    cost = dist + count
+
+    if minDist == 999999:
+        return 0
+    return cost
+    # i += 1
+
+
+def getPos(dir):
+    if dir == Directions.WEST:
+        return -1, 0
+    elif dir == Directions.EAST:
+        return 1, 0
+    elif dir == Directions.NORTH:
+        return 0, 1
+    elif dir == Directions.SOUTH:
+        return 0, -1
 
 
 class ClosestDotSearchAgent(SearchAgent):
