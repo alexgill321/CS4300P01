@@ -566,28 +566,25 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
 
-    x, y = position
-    i = 1
-
+    # Find minimum Manhattan Distance food from position
     minDist = 999999
-    xy1 = position
     minPoint = None
-    dist = 0
     for food in foodGrid.asList():
-        xy2 = food
-        manDist = abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+        manDist = abs(position[0] - food[0]) + abs(position[1] - food[1])
         if manDist < minDist:
             minDist = manDist
-            minPoint = xy2
+            minPoint = food
 
+    # Find maze distance to minimum manhattan distance food
     if minPoint is not None:
         dist = mazeDistance(position, minPoint, problem)
+    else:
+        return 0  # End of path
 
-    prob = PositionSearchProblem(problem, start=position, goal=minPoint, warn=False, visualize=False)
-    path = search.bfs(prob)
-    cost = 0
-    amountFood = len(foodGrid.asList())
-    count = amountFood
+    # Retrace the path to find amount of food not on the path
+    path = search.bfs(PositionSearchProblem(problem, start=position, goal=minPoint, warn=False, visualize=False))
+    count = len(foodGrid.asList())  # Amount of food
+    x, y = position
     if path is not None:
         for dir in path:
             x2, y2 = getPos(dir)
@@ -598,10 +595,7 @@ def foodHeuristic(state, problem):
 
     cost = dist + count
 
-    if minDist == 999999:
-        return 0
     return cost
-    # i += 1
 
 
 def getPos(dir):
@@ -644,8 +638,21 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        minDist = 999999
+        minPoint = None
+        path = None
+        for food in food.asList():
+            manDist = abs(startPosition[0] - food[0]) + abs(startPosition[1] - food[1])
+            if manDist < minDist:
+                minDist = manDist
+                minPoint = food
+
+        path = []
+        if minPoint is not None:
+            path = search.bfs(PositionSearchProblem(gameState, start=startPosition, goal=minPoint, warn=False, visualize=False))
+
+        return path
+
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -680,9 +687,14 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x, y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        self.position = state
+        return self.food[x][y]
+    #
+    # def getWalls(self):
+    #     return self.walls
+    #
+    # def getPacmanPosition(self):
+    #     return self.position
 
 
 def mazeDistance(point1, point2, gameState):
