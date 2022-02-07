@@ -329,10 +329,10 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        x, y = state[0]
+        self.position = state[0]
+        visited_corners = state[1]
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            x, y = state[0]
-            self.position = state[0]
-            visited_corners = state[1]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
 
@@ -442,14 +442,17 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
+
+    """
     min_distance = 99999999
     for corner in corners:
         if problem.getCornerNum(corner) not in state[1]:
+
             xy1 = state[0]
             xy2 = corner
             # print("xy1: ", xy1, " xy2: ", corner)
             new_dist = mazeDistance(xy1, xy2, problem)
-
+            #print("x: ", xy1, "y: ", xy2, "MinDis: ", new_dist)
             if new_dist < min_distance:
                 min_distance = new_dist
 
@@ -458,7 +461,18 @@ def cornersHeuristic(state, problem):
         return 0
     else:
         return min_distance
-
+    """
+    sum_distance = 0
+    sumSearchedCorners = 0
+    for corner in corners:
+        if problem.getCornerNum(corner) not in state[1]:
+            xy1 = state[0]
+            xy2 = corner
+            sum_distance += mazeDistance(xy1, xy2, problem)
+            sumSearchedCorners += 1
+    if sumSearchedCorners == 0:
+        return 0
+    return sum_distance/sumSearchedCorners
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
