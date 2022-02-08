@@ -151,26 +151,29 @@ def recursive_DFS(v, problem, marked, path):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     marked = set([])
-    parents = {}
-    PQ = util.Queue()
-    PQ.push(problem.getStartState())
-    while not PQ.isEmpty():
-        current = PQ.pop()
+    # parents = {}
+    Q = util.Queue()
+    Q.push((problem.getStartState(), []))
+    while not Q.isEmpty():
+        current, directions = Q.pop()
         if current not in marked:
             marked.add(current)
             if problem.isGoalState(current):
-                return traceGoal(parents, current)
+                return directions
+                # return traceGoal(parents, current)
             for child in problem.getSuccessors(current):
-                if child[0] not in marked:
-                    parents[child[0]] = (current, child[1])
-                    PQ.push(child[0])
+                # if child[0] not in marked:
+                    # parents[child[0]] = (current, child[1])
+                direction = directions + [child[1]]
+                Q.push((child[0], direction))
 
 
 def traceGoal(parents, goal):
     path = []
+
     while True:
         if parents.get(goal) is not None:
-            path.insert(0, getDirection(parents.get(goal)[1]))
+            path.insert(0, parents.get(goal)[1])
             goal = parents.get(goal)[0]
         else:
             return path
@@ -191,7 +194,7 @@ def uniformCostSearch(problem):
         if current[0] not in marked:
             marked.add(current[0])
             if problem.isGoalState(current[0]):
-                return getPath(current[1])
+                return current[1]
             for child in problem.getSuccessors(current[0]):
                 if child[0] not in marked:
                     temp = current[1].copy()
@@ -228,7 +231,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if current[0] not in marked:
             marked.add(current[0])
             if problem.isGoalState(current[0]):
-                return getPath(current[1])
+                return current[1]
             for child in problem.getSuccessors(current[0]):
                 if child[0] not in marked:
                     temp = current[1].copy()

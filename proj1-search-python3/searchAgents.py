@@ -341,10 +341,10 @@ class CornersProblem(search.SearchProblem):
                     nextVisitedCorner = visited_corners + corner_num
                     if corner_num not in visited_corners and nextVisitedCorner not in self.visitedSequences:
                         nextState = ((nextx, nexty), nextVisitedCorner)
-                        successors.append((nextState, action))
+                        successors.append((nextState, action, 1))
                 else:
                     nextState = ((nextx, nexty), visited_corners)
-                    successors.append((nextState, action))
+                    successors.append((nextState, action, 1))
 
         # Bookkeeping for display purposes
         if state not in self._visited:
