@@ -451,7 +451,6 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0  # DO NOT CHANGE
         self.heuristicInfo = {}  # A dictionary for the heuristic to store information
-        self.position = self.start[0]
 
     def getStartState(self):
         return self.start
@@ -487,12 +486,6 @@ class FoodSearchProblem:
                 return 999999
             cost += 1
         return cost
-
-    def getWalls(self):
-        return self.walls
-
-    def getPacmanPosition(self):
-        return self.position
 
 
 class AStarFoodSearchAgent(SearchAgent):
@@ -549,7 +542,7 @@ def foodHeuristic(state, problem):
         return 0  # End of path
 
     # Retrace the path to find amount of food not on the path
-    path = search.bfs(PositionSearchProblem(problem, start=position, goal=minPoint, warn=False, visualize=False))
+    path = search.bfs(PositionSearchProblem(problem.startingGameState, start=position, goal=minPoint, warn=False, visualize=False))
     count = len(foodGrid.asList())  # Amount of food
     x, y = position
     if path is not None:
