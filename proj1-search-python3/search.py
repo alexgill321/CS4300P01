@@ -75,9 +75,6 @@ def tinyMazeSearch(problem):
 
 
 def depthFirstSearch(problem):
-    marked = set([])
-    path = []
-    return recursive_DFS(problem.getStartState(),problem, marked, path)
     """
     Search the deepest nodes in the search tree first.
 
@@ -91,45 +88,9 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    # stack = util.Stack()
-    # marked = set([])
-
-    # # stack.push(start)
-    # stack.push(problem.getStartState())
-    # # while stack is not empty
-    # while not stack.isEmpty():
-    #     v = stack.pop()
-    #     path.append(getDirection(v[1]))
-
-    #     if v not in marked:
-    #         marked.add(v)
-
-    #     if problem.isGoalState(v):
-    #         return path
-
-    #     for child in problem.getSuccessors(v):
-    #         stack.push(child[0])
-
-    #     path.pop()
-
-    # # print("Start:", problem.getStartState())
-    # # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-
-    # util.raiseNotDefined()
-
-
-def getDirection(str):
-    from game import Directions
-
-    if str == "North":
-        return Directions.NORTH
-    elif str == "South":
-        return Directions.SOUTH
-    elif str == "East":
-        return Directions.EAST
-    elif str == "West":
-        return Directions.WEST
+    marked = set([])
+    path = []
+    return recursive_DFS(problem.getStartState(), problem, marked, path)
 
 
 def recursive_DFS(v, problem, marked, path):
@@ -151,7 +112,6 @@ def recursive_DFS(v, problem, marked, path):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     marked = set([])
-    # parents = {}
     Q = util.Queue()
     Q.push((problem.getStartState(), []))
     while not Q.isEmpty():
@@ -160,10 +120,7 @@ def breadthFirstSearch(problem):
             marked.add(current)
             if problem.isGoalState(current):
                 return directions
-                # return traceGoal(parents, current)
             for child in problem.getSuccessors(current):
-                # if child[0] not in marked:
-                    # parents[child[0]] = (current, child[1])
                 direction = directions + [child[1]]
                 Q.push((child[0], direction))
 
@@ -200,12 +157,6 @@ def uniformCostSearch(problem):
                     temp = current[1].copy()
                     temp.append(child[1])
                     PQ.push((child[0], temp), problem.getCostOfActions(temp))
-
-
-def getPath(path):
-    for i in range(len(path)):
-        path[i] = getDirection(path[i])
-    return path
 
 
 def nullHeuristic(state, problem=None):
