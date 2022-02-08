@@ -414,17 +414,17 @@ def cornersHeuristic(state, problem):
     else:
         return min_distance
     """
-    sum_distance = 0
+    max_distance = 0
     sumSearchedCorners = 0
     for corner in corners:
         if problem.getCornerNum(corner) not in state[1]:
             xy1 = state[0]
             xy2 = corner
-            sum_distance += mazeDistance(xy1, xy2, problem.startingGameState)
+            dist = mazeDistance(xy1, xy2, problem.startingGameState)
+            if dist> max_distance:
+                max_distance = dist
             sumSearchedCorners += 1
-    if sumSearchedCorners == 0:
-        return 0
-    return sum_distance / sumSearchedCorners
+    return max_distance
 
 
 class AStarCornersAgent(SearchAgent):
