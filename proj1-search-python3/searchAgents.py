@@ -301,8 +301,7 @@ class CornersProblem(search.SearchProblem):
         self.visitedSequences = set([])
         # For display purposes
         self._visited, self._visitedlist = {}, []
-        self.position = self.startingPosition
-        self.order = self.getCornerOrder(startingGameState)
+        self.startingGameState = startingGameState
 
     def getStartState(self):
         """
@@ -379,53 +378,6 @@ class CornersProblem(search.SearchProblem):
         elif (x, y) == self.corners[3]:
             return "4"
 
-    def getWalls(self):
-        return self.walls
-
-    def getPacmanPosition(self):
-        return self.position
-
-    def getCornerOrder(self, state):
-        distances = []
-        order = []
-        marked = set([])
-        for i in range(4):
-            p1 = self.corners[i]
-            for j in range(4):
-                if i != j and (i, j) not in marked:
-                    p2 = self.corners[j]
-                    dist = mazeDistance(p1, p2, state)
-                    distances.append((dist, (i, j)))
-                    distances.append((dist, (j, i)))
-                    marked.add((i, j))
-                    marked.add((j, i))
-        distances = sorted(distances)
-        #print(distances)
-        start = -1
-        min_dist = 999999999
-        for i in range(len(self.corners)):
-            new_dist = mazeDistance(self.startingPosition, self.corners[i], state)
-            if new_dist < min_dist:
-                min_dist = new_dist
-                start = i
-
-        current = start
-        order.append(start)
-        new_marked = set([start])
-        while len(order) < 4:
-            min_dist = 999999
-            min_index = 999999
-            for i in range(len(distances)):
-                if distances[i][1][0] == current and distances[i][0] < min_dist \
-                        and distances[i][1][1] not in new_marked:
-                    min_dist = distances[i][0]
-                    min_index = distances[i][1][1]
-            current = min_index
-            new_marked.add(current)
-            order.append(current)
-        print(order)
-        return order
-
 
 def cornersHeuristic(state, problem):
     """
@@ -468,11 +420,12 @@ def cornersHeuristic(state, problem):
         if problem.getCornerNum(corner) not in state[1]:
             xy1 = state[0]
             xy2 = corner
-            sum_distance += mazeDistance(xy1, xy2, problem)
+            sum_distance += mazeDistance(xy1, xy2, problem.startingGameState)
             sumSearchedCorners += 1
     if sumSearchedCorners == 0:
         return 0
-    return sum_distance/sumSearchedCorners
+    return sum_distance / sumSearchedCorners
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -591,7 +544,7 @@ def foodHeuristic(state, problem):
 
     # Find maze distance to minimum manhattan distance food
     if minPoint is not None:
-        dist = mazeDistance(position, minPoint, problem)
+        dist = mazeDistance(position, minPoint, problem.startingGameState)
     else:
         return 0  # End of path
 
@@ -654,8 +607,8 @@ class ClosestDotSearchAgent(SearchAgent):
 
         minDist = 999999
         minPoint = None
-        path = None
         for food in food.asList():
+            # mazeDist = mazeDistance(startPosition, food, gameState)
             manDist = abs(startPosition[0] - food[0]) + abs(startPosition[1] - food[1])
             if manDist < minDist:
                 minDist = manDist
@@ -663,10 +616,11 @@ class ClosestDotSearchAgent(SearchAgent):
 
         path = []
         if minPoint is not None:
-            path = search.bfs(PositionSearchProblem(gameState, start=startPosition, goal=minPoint, warn=False, visualize=False))
+            # path = search.bfs(
+            #     PositionSearchProblem(gameState, start=startPosition, goal=minPoint, warn=False, visualize=False))
+            path = search.bfs(problem)
 
         return path
-
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -701,14 +655,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x, y = state
-        self.position = state
         return self.food[x][y]
-    #
-    # def getWalls(self):
-    #     return self.walls
-    #
-    # def getPacmanPosition(self):
-    #     return self.position
 
 
 def mazeDistance(point1, point2, gameState):
