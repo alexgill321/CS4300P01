@@ -395,25 +395,6 @@ def cornersHeuristic(state, problem):
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
-    """
-    min_distance = 99999999
-    for corner in corners:
-        if problem.getCornerNum(corner) not in state[1]:
-
-            xy1 = state[0]
-            xy2 = corner
-            # print("xy1: ", xy1, " xy2: ", corner)
-            new_dist = mazeDistance(xy1, xy2, problem)
-            #print("x: ", xy1, "y: ", xy2, "MinDis: ", new_dist)
-            if new_dist < min_distance:
-                min_distance = new_dist
-
-    # print(min_distance)
-    if min_distance == 99999999:
-        return 0
-    else:
-        return min_distance
-    """
     max_distance = 0
     sumSearchedCorners = 0
     for corner in corners:
@@ -601,7 +582,6 @@ class ClosestDotSearchAgent(SearchAgent):
         minDist = 999999
         minPoint = None
         for food in food.asList():
-            # mazeDist = mazeDistance(startPosition, food, gameState)
             manDist = abs(startPosition[0] - food[0]) + abs(startPosition[1] - food[1])
             if manDist < minDist:
                 minDist = manDist
@@ -609,8 +589,6 @@ class ClosestDotSearchAgent(SearchAgent):
 
         path = []
         if minPoint is not None:
-            # path = search.bfs(
-            #     PositionSearchProblem(gameState, start=startPosition, goal=minPoint, warn=False, visualize=False))
             path = search.bfs(problem)
 
         return path
