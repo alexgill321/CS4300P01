@@ -272,8 +272,45 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        depth = self.depth
+        return self.max_value(gameState,depth)
+
+    def max_value(self, state, depth):
+        v = -99999
+        if state.isWin() or state.isLose():
+            return self.evaluationFunction(state)
+        if depth <= 0:
+            v = self.evaluationFunction(state)
+            return v
+        else:
+            for action in state.getLegalActions(0):
+                successor = state.generateSuccessor(0, action)
+                tempV = self.exp_value(successor, 1, depth)
+                if depth == self.depth:
+                    if max(v, tempV) == tempV:
+                        v = tempV
+                        returnAction = action
+                else:
+                    v = max(v, tempV)
+        if depth == self.depth:
+            return returnAction
+        else:
+            return v
+
+    def exp_value(self,state,agentIndex,depth):
+        v = 0
+        if state.isWin() or state.isLose():
+            return self.evaluationFunction(state)
+        numAgents = state.getNumAgents()
+        numsuccessors = len(state.getLegalActions(agentIndex))
+        p = 1/numsuccessors
+        for action in state.getLegalActions(agentIndex):
+            successor = state.generateSuccessor(agentIndex,action)
+            if agentIndex + 1 >= numAgents:
+                v += p * self.max_value(successor,depth-1)
+            else:
+                v += p * self.exp_value(successor, agentIndex + 1,depth)
+        return v
 
 
 def betterEvaluationFunction(currentGameState):
@@ -284,7 +321,49 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    depth = 2
+    score = max_value(currentGameState,depth)
+    newFood = currentGameState.getFood()
+    food_distance = 999999
+    for food in newFood.asList():
+        new_dist = manhattanDistance(food, currentGameState.getPacmanPosition())
+        if new_dist < food_distance:
+            food_distance = new_dist
+
+    if food_distance == 999999:
+        food_distance = 0
+    return score - food_distance + currentGameState.getScore()
+
+
+def max_value(state, depth):
+    v = -99999
+    if state.isWin() or state.isLose():
+        return state.getScore()
+    if depth <= 0:
+        v = state.getScore()
+        return v
+    else:
+        for action in state.getLegalActions(0):
+            successor = state.generateSuccessor(0, action)
+            tempV = exp_value(successor, 1, depth)
+            v = max(v, tempV)
+    return v
+
+def exp_value(state,agentIndex,depth):
+    v = 0
+    if state.isWin() or state.isLose():
+        return state.getScore()
+    numAgents = state.getNumAgents()
+    numsuccessors = len(state.getLegalActions(agentIndex))
+    p = 1/numsuccessors
+    for action in state.getLegalActions(agentIndex):
+        successor = state.generateSuccessor(agentIndex,action)
+        if agentIndex + 1 >= numAgents:
+            v += p * max_value(successor,depth-1)
+        else:
+            v += p * exp_value(successor, agentIndex + 1,depth)
+    return v
+
 
 
 # Abbreviation
