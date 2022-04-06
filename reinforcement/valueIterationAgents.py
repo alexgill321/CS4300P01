@@ -61,7 +61,22 @@ class ValueIterationAgent(ValueEstimationAgent):
 
     def runValueIteration(self):
         # Write value iteration code here
-        "*** YOUR CODE HERE ***"
+        states = self.mdp.getStates()
+        for i in range(self.iterations):
+            prevvalues = self.values.copy();
+            for state in states:
+                if self.mdp.isTerminal(state):
+                    continue
+                actions = self.mdp.getPossibleActions(state)
+                arguments = []
+                for action in actions:
+                    value = 0
+                    Transitions = self.mdp.getTransitionStatesAndProbs(state,action)
+                    for (nextstate,prob) in Transitions:
+                        reward = self.mdp.getReward(state,action,nextstate)
+                        value += prob * (reward + self.discount*prevvalues[nextstate])
+                    arguments.append(value)
+                self.values[state] = max(arguments)
 
 
     def getValue(self, state):
@@ -76,8 +91,12 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        Qvalue = 0
+        Transitions = self.mdp.getTransitionStatesAndProbs(state,action)
+        for (nextstate,prob) in Transitions:
+            reward = self.mdp.getReward(state,action,nextstate)
+            Qvalue += prob *(reward + self.discount*self.values[nextstate])
+        return Qvalue
 
     def computeActionFromValues(self, state):
         """
@@ -87,9 +106,25 @@ class ValueIterationAgent(ValueEstimationAgent):
           You may break ties any way you see fit.  Note that if
           there are no legal actions, which is the case at the
           terminal state, you should return None.
+
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = self.mdp.getPossibleActions(state)
+        if not actions:
+            return None
+        arguments = []
+        for action in actions:
+            value = 0
+            Transitions = self.mdp.getTransitionStatesAndProbs(state,action)
+            for (nextstate,prob) in Transitions:
+                reward = self.mdp.getReward(state,action,nextstate)
+                value += prob * (reward + self.discount*self.values[nextstate])
+            arguments.append((value,action))
+        bestvalue = -99999
+        for (value,action) in arguments:
+            if value > bestvalue:
+                bestvalue = value
+                bestaction = action
+        return bestaction
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
