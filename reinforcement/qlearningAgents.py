@@ -16,7 +16,8 @@ from game import *
 from learningAgents import ReinforcementAgent
 from featureExtractors import *
 
-import random,util,math
+import random, util, math
+
 
 class QLearningAgent(ReinforcementAgent):
     """
@@ -38,11 +39,11 @@ class QLearningAgent(ReinforcementAgent):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
+
     def __init__(self, **args):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
         self.Qvalues = {}
-        
 
     def getQValue(self, state, action):
         """
@@ -51,16 +52,13 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         if not self.Qvalues:
-            self.Qvalues[(state,action)] = 0.0
+            self.Qvalues[(state, action)] = 0.0
             return 0.0
-        elif not (state,action) in self.Qvalues.keys():
-            self.Qvalues[(state,action)] = 0.0
+        elif not (state, action) in self.Qvalues.keys():
+            self.Qvalues[(state, action)] = 0.0
             return 0.0
         else:
-            return self.Qvalues[(state,action)]
-
-            
-
+            return self.Qvalues[(state, action)]
 
     def computeValueFromQValues(self, state):
         """
@@ -74,7 +72,7 @@ class QLearningAgent(ReinforcementAgent):
             return 0.0
         maxValue = -99999
         for action in actions:
-            maxValue = max(maxValue,self.getQValue(state,action))
+            maxValue = max(maxValue, self.getQValue(state, action))
         return maxValue
 
     def computeActionFromQValues(self, state):
@@ -88,14 +86,12 @@ class QLearningAgent(ReinforcementAgent):
             return None
         maxValue = -99999
         for action in actions:
-            if self.getQValue(state,action) > maxValue:
-                maxValue = max(maxValue,self.getQValue(state,action))
+            if self.getQValue(state, action) > maxValue:
+                maxValue = max(maxValue, self.getQValue(state, action))
                 maxAction = action
-            elif self.getQValue(state,action) == maxValue:
+            elif self.getQValue(state, action) == maxValue:
                 maxAction = random.choice([maxAction, action])
         return maxAction
-
-
 
     def getAction(self, state):
         """
@@ -130,7 +126,7 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         sample = reward + self.discount * self.computeValueFromQValues(nextState)
-        self.Qvalues[(state,action)] = (1-self.alpha)*self.getQValue(state,action) + self.alpha * sample
+        self.Qvalues[(state, action)] = (1 - self.alpha) * self.getQValue(state, action) + self.alpha * sample
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
@@ -142,7 +138,7 @@ class QLearningAgent(ReinforcementAgent):
 class PacmanQAgent(QLearningAgent):
     "Exactly the same as QLearningAgent, but with different default parameters"
 
-    def __init__(self, epsilon=0.05,gamma=0.8,alpha=0.2, numTraining=0, **args):
+    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
         """
         These default parameters can be changed from the pacman.py command line.
         For example, to change the exploration rate, try:
@@ -166,8 +162,8 @@ class PacmanQAgent(QLearningAgent):
         informs parent of action for Pacman.  Do not change or remove this
         method.
         """
-        action = QLearningAgent.getAction(self,state)
-        self.doAction(state,action)
+        action = QLearningAgent.getAction(self, state)
+        self.doAction(state, action)
         return action
 
 
@@ -179,6 +175,7 @@ class ApproximateQAgent(PacmanQAgent):
        and update.  All other QLearningAgent functions
        should work as is.
     """
+
     def __init__(self, extractor='IdentityExtractor', **args):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
@@ -192,17 +189,18 @@ class ApproximateQAgent(PacmanQAgent):
           Should return Q(state,action) = w * featureVector
           where * is the dotProduct operator
         """
-        featureVector = self.featExtractor.getFeatures(state,action)
-        w = self.getWeights()
-        return sum(i[0] * i[1] for i in zip(w.values(),featureVector.values())) #stolen
-
+        featureVector = self.featExtractor.getFeatures(state, action)
+        total = 0
+        for i in featureVector:
+            total += self.weights[i] * featureVector[i]
+        return total
 
     def update(self, state, action, nextState, reward):
         """
            Should update your weights based on transition
         """
-        features = self.featExtractor.getFeatures(state,action)
-        difference = (reward + self.discount * self.computeValueFromQValues(nextState)) - self.getQValue(state,action)
+        features = self.featExtractor.getFeatures(state, action)
+        difference = (reward + self.discount * self.computeValueFromQValues(nextState)) - self.getQValue(state, action)
         for feature in features:
             self.weights[feature] = self.weights[feature] + self.alpha * difference * features[feature]
 
